@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 ```
-# Note
+### Note
 Make sure to add the android:name=".MainApplication" entry inside the <application> tag in your AndroidManifest.xml file
 to register your Application class:
 ```xml
@@ -85,4 +85,35 @@ to register your Application class:
 </manifest>
 ```
 ## Start Injecting
-TODO
+Now that everything is set up, you can begin injecting the `BluetoothRepository` into your `ViewModel`.
+### Steps to Inject the BluetoothRepository into the ViewModel:
+1. **Extend ViewModel**: Ensure that your custom `ViewModel` class extends `ViewModel`.
+2. **Add Annotations**:
+    - Add the `@HiltViewModel` annotation to your `ViewModel` class.
+    - Add the `@Inject` annotation to the constructor of the `ViewModel` to allow Hilt to inject dependencies.
+3. **Inject the Repository**: Add the `BluetoothRepository` as a parameter in the constructor of the `ViewModel`.
+
+Here’s the full code for my custom `MainViewModel` class:
+```kotlin
+@HiltViewModel[README.md](README.md)
+class MainViewModel @Inject constructor(
+    private val bluetoothRepository: BluetoothRepository
+) : ViewModel() {
+    // Your code goes here
+}
+```
+## Injecting ViewModel into Composable
+You can also provide your composable functions access to the `ViewModel` through dependency injection.
+Simply add the following parameter to your function:
+```kotlin
+@Composable
+fun MainScreen(
+    viewModel: MainViewModel = hiltViewModel(),
+    //...
+) {
+   // Your code goes here
+}
+```
+# All Set
+you have followed all the steps correctly, your dependency injection should now be set up and working.
+You can now return to the main [tutorial](./README.md) to continue with the `BluetoothRepository` class.
