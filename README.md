@@ -23,7 +23,25 @@ android {
 If you wish to utilize my `BluetoothRepository` class, it is recommended (but not required) to implement dependency injection using Hilt.
 If you haven't set it up yet but would like to, check out [this tutorial](./di-tutorial.md) to quickly get everything configured.
 ### Permissions
-TODO
+For the use Bluetooth functionality you are required to obtain the `BLUETOOTH_CONNECT`, `BLUETOOTH_SCAN` and `BLUETOOTH_ADVERTISE` permissions.
+These are runtime permissions and require two steps:
+1. Add the following entries to your AndroidManifest.xml file:
+   ```xml
+   <?xml version="1.0" encoding="utf-8"?>
+   <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:tools="http://schemas.android.com/tools">
+      <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />   <!-- 1. -->
+      <uses-permission android:name="android.permission.BLUETOOTH_SCAN"         
+              android:usesPermissionFlags="neverForLocation"/>                  <!-- 2. -->      
+      <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" /> <!-- 3. -->
+      
+      <!-- ... -->
+      
+   </manifest>
+   ```
+2. Request the permissions from the user during runtime.
+   As their name implies, runtime permissions must be obtained during runtime.
+   You can do this in several ways, but I won't cover those methods here.
 ## Discover Devices
 If you wish to transfer data, you need to know which device should receive the information.
 There are currently two ways to obtain devices:

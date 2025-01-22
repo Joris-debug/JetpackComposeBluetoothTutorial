@@ -41,7 +41,7 @@ kapt {
 Hilt requires Java 8 features,
 so ensure that you have set both `sourceCompatibility` and `targetCompatibility` to at least Java 8 in your app-level build.gradle file.
 ## Create An Application Class
-Hilt requires that your project contains an Application class annotated with `@HiltAndroidApp`
+Hilt requires that your project contains an Application class annotated with `@HiltAndroidApp`.
 It tells Hilt to generate the necessary code to manage and inject dependencies into Android components throughout your app.
 In the following code, I've created an `Application` class and arbitrarily named it `MainApplication`:
 ```kotlin
@@ -95,7 +95,7 @@ Now that everything is set up, you can begin injecting the `BluetoothRepository`
 
 Here’s the full code for my custom `MainViewModel` class:
 ```kotlin
-@HiltViewModel[README.md](README.md)
+@HiltViewModel
 class MainViewModel @Inject constructor(
     private val bluetoothRepository: BluetoothRepository
 ) : ViewModel() {
@@ -115,5 +115,6 @@ fun MainScreen(
 }
 ```
 # All Set
-you have followed all the steps correctly, your dependency injection should now be set up and working.
-You can now return to the main [tutorial](./README.md) to continue with the `BluetoothRepository` class.
+If you have followed all the steps correctly, your dependency injection should now be set up and working.
+
+You can now return to the [main tutorial](./README.md) to continue with the `BluetoothRepository` class.
