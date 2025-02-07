@@ -1,6 +1,7 @@
 # Communicate With Devices
 ## Discover Devices
 In the example below, bluetoothRepository should be the instance of BluetoothRepository provided by your [dependency injection](./di-tutorial.md) setup.
+
 If you wish to transfer data, you need to know which device should receive the information.
 There are currently two ways to obtain devices: 
 1. You can obtain a set of paired devices with `getPairedDevices()`:
@@ -9,6 +10,7 @@ There are currently two ways to obtain devices:
    ```
    However, there is no guarantee that the device you're searching for is already paired with the device your app is running on.
    Additionally, paired devices may not be in proximity to your device.
+
 2. Discover nearby devices:
    ```kotlin
    bluetoothRepository.startBluetoothScan()
@@ -22,6 +24,7 @@ There are currently two ways to obtain devices:
 ### Note
 `getPairedDevices()` as well as `getDiscoveredDevices()` will give you access to instances of BluetoothDevice.
 You will need the desired device object for the next step.
+
 For the discovery process to work, Bluetooth must be enabled.
 You can only discover devices that have made themselves discoverable in the system settings.
 This can typically be done through a prompt, similar to the process of enabling Bluetooth.
@@ -41,8 +44,9 @@ To start a connection, one device will act as the server, while the other will a
       }
    }
    ```
-You can check if a client has successfully connected to the server by calling `isConnected()`, which returns `true` in that case, and `false` otherwise.
-1. The client, on the other hand, needs to call the function `connectFromClientSocket(device)`:
+   You can check if a client has successfully connected to the server by calling `isConnected()`, which returns `true` in that case, and `false` otherwise.
+
+2. The client, on the other hand, needs to call the function `connectFromClientSocket(device)`:
    ```kotlin
    bluetoothRepository.connectFromClientSocket(device)
    delay(3000) // Wait for a few seconds

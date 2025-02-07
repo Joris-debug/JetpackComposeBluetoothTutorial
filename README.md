@@ -43,9 +43,11 @@ These are runtime permissions and require two steps:
    </manifest>
    ```
 2. Request the permissions from the user during runtime:
+
    As their name implies, runtime permissions must be obtained during runtime.
    You can do this in several ways, but I won't cover those methods here.
 
 ## All Set
 With everything configured, you're now ready to add Bluetooth communication to your project.
+
 To continue, head over to the next section: [Communicate With Devices](./communicate.md).

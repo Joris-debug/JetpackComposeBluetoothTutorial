@@ -17,6 +17,8 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.util.UUID
@@ -47,6 +49,8 @@ class BluetoothRepository @Inject constructor(
                     }
                     device?.let { dev ->
                         discoveredDevices.add(dev)
+                        _discoveredDevicesFlow.value =
+                            _discoveredDevicesFlow.value.toMutableSet().apply { add(dev) }
                     }
                 }
             }
@@ -59,11 +63,8 @@ class BluetoothRepository @Inject constructor(
     private var socket: BluetoothSocket? = null
     private val readBuffer: ByteArray = ByteArray(BUFFER_SIZE) // Buffer store for the stream
 
-    companion object {
-        const val BUFFER_SIZE = 2048
-        const val SERVICE_NAME = "CoinCraze"
-        val SERVICE_UUID: UUID = UUID.nameUUIDFromBytes(SERVICE_NAME.toByteArray())
-    }
+    private val _discoveredDevicesFlow = MutableStateFlow<Set<BluetoothDevice>>(emptySet())
+    private val discoveredDevicesFlow: StateFlow<Set<BluetoothDevice>> = _discoveredDevicesFlow
 
     fun isConnected(): Boolean {
         return connectionEstablished
@@ -71,6 +72,10 @@ class BluetoothRepository @Inject constructor(
 
     fun getDiscoveredDevices(): Set<BluetoothDevice> {
         return discoveredDevices.toSet()
+    }
+
+    fun getDiscoveredDevicesFlow(): StateFlow<Set<BluetoothDevice>> {
+        return discoveredDevicesFlow
     }
 
     // Returns true if the device has activated bluetooth
@@ -96,6 +101,14 @@ class BluetoothRepository @Inject constructor(
         ) == PackageManager.PERMISSION_GRANTED
 
         return bluetoothConnectPermission && bluetoothScanPermission && bluetoothAdvertisePermission
+    }
+
+    fun getNecessaryPermissions(): Array<String> {
+        return arrayOf(
+            Manifest.permission.BLUETOOTH_CONNECT,
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_ADVERTISE
+        )
     }
 
     @SuppressLint("MissingPermission")
@@ -313,4 +326,9 @@ class BluetoothRepository @Inject constructor(
         }
     }
 
+    companion object {
+        const val BUFFER_SIZE = 2048
+        const val SERVICE_NAME = "CoinCraze"
+        val SERVICE_UUID: UUID = UUID.nameUUIDFromBytes(SERVICE_NAME.toByteArray())
+    }
 }
