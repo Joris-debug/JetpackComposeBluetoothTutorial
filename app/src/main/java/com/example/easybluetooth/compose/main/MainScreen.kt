@@ -1,12 +1,14 @@
 package com.example.easybluetooth.compose.main
 
-import android.bluetooth.BluetoothDevice
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -31,6 +33,7 @@ fun MainScreen(
 ) {
     var showServerDialog by remember { mutableStateOf(false) }
     var showClientDialog by remember { mutableStateOf(false) }
+
     val permissionGranted = remember { mutableStateOf(false) }
 
     // Launcher responsible for obtaining the runtime permissions
@@ -54,6 +57,8 @@ fun MainScreen(
     }
 
     val devices = viewModel.getDeviceFlow().collectAsState()
+    val messages = viewModel.getMessagesFlow().collectAsState()
+    val chatConnected = viewModel.getChatConnectedFlow().collectAsState()
 
     Column(modifier = modifier.padding(16.dp)) {
         Text(text = "Welcome on the main screen!")
@@ -73,7 +78,9 @@ fun MainScreen(
                     launcher.launch(permissionsNeeded.toTypedArray())
                 }
             },
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
         ) {
             Text("Request runtime permissions")
         }
@@ -87,7 +94,9 @@ fun MainScreen(
                 viewModel.startBluetoothServer()
                 showServerDialog = true
             },
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
         ) {
             Text("Be the Bluetooth server")
         }
@@ -100,7 +109,9 @@ fun MainScreen(
                 viewModel.startBluetoothSearch()
                 showClientDialog = true
             },
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
         ) {
             Text("Be the Bluetooth client")
         }
@@ -109,8 +120,6 @@ fun MainScreen(
     if (showServerDialog) {
         AlertDialog(
             onDismissRequest = {
-                showServerDialog = false
-                viewModel.stopBluetoothServer()
             },
             title = { Text("Server Dialog") },
             text = { Text("You are now listening to connections...") },
@@ -130,7 +139,6 @@ fun MainScreen(
     if (showClientDialog) {
         AlertDialog(
             onDismissRequest = {
-                showClientDialog = false
             },
             title = { Text("Client Dialog") },
             text = {
@@ -140,7 +148,16 @@ fun MainScreen(
                         Text("No devices found.")
                     } else {
                         devices.value.forEach { dev ->
-                            Text(text = "Name: ${dev.name ?: "Unknown"}, Address: ${dev.address}")
+                            Text(
+                                text = "Name: ${dev.name ?: "Unknown"}, Address: ${dev.address}",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        viewModel.startClientConnection(dev)
+                                        showClientDialog = false
+                                    }
+                                    .padding(8.dp)
+                            )
                         }
                     }
                 }
@@ -154,6 +171,51 @@ fun MainScreen(
                     Text("Close client")
                 }
             },
+        )
+    }
+    if (chatConnected.value) {
+        AlertDialog(
+            onDismissRequest = {
+            },
+            title = { Text("Chatting") },
+            text = {
+                Column {
+                    messages.value.forEach { mes ->
+                        Text(text = mes)
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showServerDialog = false // Could still be open in the background
+                        viewModel.endChat()
+                    }
+                ) {
+                    Text("End chat")
+                }
+            },
+            dismissButton = {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    TextButton(
+                        onClick = {
+                            viewModel.sendPing()
+                        }
+                    ) {
+                        Text("Ping")
+                    }
+
+                    TextButton(
+                        onClick = {
+                            viewModel.sendPong()
+                        }
+                    ) {
+                        Text("Pong")
+                    }
+                }
+            }
         )
     }
 }
