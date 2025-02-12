@@ -1,5 +1,7 @@
 package com.example.easybluetooth.compose.main
 
+import android.bluetooth.BluetoothAdapter
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -33,7 +35,6 @@ fun MainScreen(
 ) {
     var showServerDialog by remember { mutableStateOf(false) }
     var showClientDialog by remember { mutableStateOf(false) }
-
     val permissionGranted = remember { mutableStateOf(false) }
 
     // Launcher responsible for obtaining the runtime permissions
@@ -60,9 +61,16 @@ fun MainScreen(
     val messages = viewModel.getMessagesFlow().collectAsState()
     val chatConnected = viewModel.getChatConnectedFlow().collectAsState()
 
-    Column(modifier = modifier.padding(16.dp)) {
-        Text(text = "Welcome on the main screen!")
+    // Intents used to request the user activate Bluetooth or make his device discoverable
+    val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+    enableBtIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    val discoverableDuration = 60 // How long will the device be discoverable
+    val discoverableIntent: Intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
+        putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, discoverableDuration)
+    }
+    discoverableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
+    Column(modifier = modifier.padding(16.dp)) {
         // Button responsible for asking for the runtime permissions
         Button(
             onClick = {
@@ -90,7 +98,11 @@ fun MainScreen(
                 if (!permissionGranted.value) {
                     return@Button
                 }
-                viewModel.enableDiscoverability()
+                if (!viewModel.isBluetoothEnabled()) { // User did not activate Bluetooth
+                    context.startActivity(enableBtIntent)
+                    return@Button
+                }
+                context.startActivity(discoverableIntent)
                 viewModel.startBluetoothServer()
                 showServerDialog = true
             },
@@ -104,6 +116,10 @@ fun MainScreen(
         Button(
             onClick = {
                 if (!permissionGranted.value) {
+                    return@Button
+                }
+                if (!viewModel.isBluetoothEnabled()) { // User did not activate Bluetooth
+                    context.startActivity(enableBtIntent)
                     return@Button
                 }
                 viewModel.startBluetoothSearch()

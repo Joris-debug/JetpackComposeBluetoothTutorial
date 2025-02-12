@@ -42,10 +42,12 @@ class MainViewModel @Inject internal constructor(
     fun startBluetoothServer() {
         viewModelScope.launch {
             bluetoothRepository.listenOnServerSocket()
-            isClient = false
-            _chatConnected.value = true
-            withContext(Dispatchers.IO) {
-                readMessages()
+            if (bluetoothRepository.isConnected()) {
+                isClient = false
+                _chatConnected.value = true
+                withContext(Dispatchers.IO) {
+                    readMessages()
+                }
             }
         }
     }
@@ -54,17 +56,19 @@ class MainViewModel @Inject internal constructor(
         bluetoothRepository.cancelListenOnServerSocket()
     }
 
-    fun enableDiscoverability() = bluetoothRepository.enableBluetoothDiscoverability()
+    fun isBluetoothEnabled() = bluetoothRepository.isBluetoothEnabled()
 
     fun getNecessaryPermissions() = bluetoothRepository.getNecessaryPermissions()
 
     fun startClientConnection(dev: BluetoothDevice) {
         viewModelScope.launch {
             bluetoothRepository.connectFromClientSocket(dev)
-            isClient = true
-            _chatConnected.value = true
-            withContext(Dispatchers.IO) {
-                readMessages()
+            if (bluetoothRepository.isConnected()) {
+                isClient = true
+                _chatConnected.value = true
+                withContext(Dispatchers.IO) {
+                    readMessages()
+                }
             }
         }
     }
@@ -72,7 +76,7 @@ class MainViewModel @Inject internal constructor(
     fun sendPing() {
         viewModelScope.launch {
             bluetoothRepository.write(PING)
-            addMessage(PONG, isClient)
+            addMessage(PING, isClient)
         }
     }
 

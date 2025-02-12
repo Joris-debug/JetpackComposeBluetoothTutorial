@@ -255,6 +255,8 @@ class BluetoothRepository @Inject constructor(
         }
         try {
             socket?.close()
+            socket = null
+            serverSocket = null
             connectionEstablished = false
         } catch (e: IOException) {
             Log.e("closeConnection()", "Could not close the connect socket", e)
@@ -301,21 +303,6 @@ class BluetoothRepository @Inject constructor(
             discoverableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(discoverableIntent)
         }
-    }
-
-    // Start scanning for nearby Bluetooth devices
-    @SuppressLint("MissingPermission")
-    fun startBluetoothScan() {
-        if (!checkBluetoothPermissions()) {
-            Log.d("startBluetoothScan():", "Missing Bluetooth permissions")
-            return
-        }
-        if (!isBluetoothEnabled()) {
-            Log.d("startBluetoothScan():", "Bluetooth is not enabled")
-            return
-        }
-        stopScanning()
-        startScanning()
     }
 
     // Stop Bluetooth discovery after scanning
