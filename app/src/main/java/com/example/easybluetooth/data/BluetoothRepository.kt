@@ -199,10 +199,10 @@ class BluetoothRepository @Inject constructor(
             // until it succeeds or throws an exception.
             try {
                 withContext(Dispatchers.IO) {
-                    socket.connect()
+                    socket.connect()                    
+                    // The connection attempt succeeded.
+                    connectionEstablished = true
                 }
-                // The connection attempt succeeded.
-                connectionEstablished = true
             } catch (e: IOException) {
                 Log.d("connectFromClientSocket", "Connection failed: ${e.message}", e)
             }
